@@ -110,12 +110,24 @@ def text_of(parent, selector: str) -> str:
     return tag.get_text(" ", strip=True) if tag else ""
 
 
+LAZY_IMAGE_ATTRS = ("data-src", "data-original", "data-lazy-src", "src")
+
+
 def image_of(parent, selector: str = "img") -> str | None:
-    """Image URL, handling lazy-loaded images that use data-src."""
+    """Image URL, handling lazy-loaded images.
+
+    Lazy-loading stores put a tiny inline placeholder (a data: URI) in `src`
+    and the real URL in an attribute such as data-src or data-original
+    (Zoom does this for every product after the first).
+    """
     img = parent.select_one(selector)
     if not img:
         return None
-    return img.get("data-src") or img.get("src")
+    for attr in LAZY_IMAGE_ATTRS:
+        url = img.get(attr)
+        if url and not url.startswith("data:"):
+            return url
+    return None
 
 
 def make_product(store, name, price_text, stock_text, url, image) -> Product | None:

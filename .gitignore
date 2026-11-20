@@ -21,3 +21,6 @@ scrapers/*.html
 .idea/
 .DS_Store
 Thumbs.db
+
+# Runtime data (search cache)
+instance/
